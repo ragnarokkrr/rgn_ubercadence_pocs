@@ -19,15 +19,31 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
 
   private CompletablePromise<PropostaConcluida> propostaConcluidaPromise = Workflow.newPromise();
 
+  private boolean exit = false;
+  private boolean firstRun = false;
+
   private PropostaWorkflowId propostaWorkflowId;
 
   @Override
   public void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada) {
-    propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
 
-    log.info("INICIANDO WORKFLOW: {} {}", propostaWorkflowId.encodedId(), propostaIniciada);
-    this.propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
-    propostaActivities.enviarPropostaParaAnalise(propostaIniciada);
+    while (true) {
+
+      if (!firstRun) {
+        propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
+
+        log.info("INICIANDO WORKFLOW: {} {}", propostaWorkflowId.encodedId(), propostaIniciada);
+        this.propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
+        propostaActivities.enviarPropostaParaAnalise(propostaIniciada);
+        firstRun = true;
+      }
+
+      Workflow.await(() -> !this.isStopCondition());
+
+      if (isStopCondition()) {
+        return;
+      }
+    }
   }
 
   @Override
@@ -60,10 +76,15 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
     log.info("CONCLUINDO PROPOSTA: {} {}", propostaWorkflowId, propostaConcluida);
     propostaActivities.concluirProposta(propostaConcluida);
     this.propostaConcluidaPromise.complete(propostaConcluida);
+    this.exit = true;
   }
 
   @Override
   public PropostaConcluida getPropostaConcluidaEvent() {
     return propostaConcluidaPromise.get();
+  }
+
+  private boolean isStopCondition() {
+    return firstRun && exit;
   }
 }

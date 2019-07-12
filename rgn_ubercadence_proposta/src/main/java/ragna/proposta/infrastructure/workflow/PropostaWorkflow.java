@@ -10,7 +10,7 @@ import ragna.proposta.infrastructure.config.UberCadenceConstants;
 public interface PropostaWorkflow {
 
   @WorkflowMethod(
-    executionStartToCloseTimeoutSeconds = 10 * 60,
+    executionStartToCloseTimeoutSeconds = 100 * 60,
     taskList = UberCadenceConstants.TASK_LIST
   )
   void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada);
