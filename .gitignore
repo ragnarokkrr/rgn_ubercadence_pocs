@@ -1,0 +1,29 @@
+.gradle
+/build/
+/rgn_ubercadence_analise/build/
+/rgn_uber_cadence_common/build/
+/rgn_ubercadence_proposta/build/
+/rgn_ubercadence_samples/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/

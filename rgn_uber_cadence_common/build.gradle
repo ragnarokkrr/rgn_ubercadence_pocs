@@ -1,0 +1,9 @@
+plugins {
+    id 'java'
+}
+
+group 'ragna.ubercadence'
+version '1.0-SNAPSHOT'
+
+dependencies {
+}

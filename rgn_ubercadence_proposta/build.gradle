@@ -1,0 +1,13 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group 'ragna.ubercadence'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile project(':rgn_uber_cadence_common')
+}

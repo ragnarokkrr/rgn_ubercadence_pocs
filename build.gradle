@@ -1,0 +1,75 @@
+plugins {
+    id 'java'
+    id "com.github.sherter.google-java-format" version "0.8"
+    id "io.spring.dependency-management" version "1.0.5.RELEASE"
+}
+
+ext { springBootVersion = '2.1.6.RELEASE' }
+
+group 'ragna.ubercadence'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'com.github.sherter.google-java-format'
+//apply plugin: 'org.springframework.boot'
+
+allprojects {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'com.github.sherter.google-java-format'
+    apply plugin: 'io.spring.dependency-management'
+    //apply plugin: 'org.springframework.boot'
+
+    sourceCompatibility = 11
+    targetCompatibility = 11
+
+    compileJava {
+        dependsOn 'googleJavaFormat'
+        options.encoding = 'UTF-8'
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+
+    googleJavaFormat {
+        toolVersion '1.5'
+        include '**/*.java'
+        exclude '**/generated-sources/*'
+    }
+
+    dependencies {
+        compile 'org.springframework.boot:spring-boot-starter-web'
+        compile 'org.springframework.boot:spring-boot-starter-amqp'
+        //compile('org.springframework.cloud:spring-cloud-stream-binder-rabbit')
+
+        compile 'io.springfox:springfox-swagger2:2.9.2'
+        compile'io.springfox:springfox-swagger-ui:2.9.2'
+
+
+        compile group: 'com.uber.cadence', name: 'cadence-client', version: '2.2.0'
+        compile group: 'io.netty', name: 'netty-transport-native-epoll', version: '4.1.17.Final', classifier: 'linux-x86_64'
+        compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
+        compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+        compile group: 'io.vavr', name: 'vavr', version: '0.10.0'
+
+        compileOnly 'org.projectlombok:lombok:1.18.8'
+
+        annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+        // testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+    }
+
+    dependencyManagement {
+        imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
+    }
+}

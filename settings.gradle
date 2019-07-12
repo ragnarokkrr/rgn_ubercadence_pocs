@@ -1,0 +1,6 @@
+rootProject.name = 'rgn_ubercadence_pocs'
+include ':rgn_uber_cadence_common'
+include 'rgn_ubercadence_samples'
+include 'rgn_ubercadence_proposta'
+include 'rgn_ubercadence_analise'
+
