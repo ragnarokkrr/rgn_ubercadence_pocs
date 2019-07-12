@@ -27,7 +27,7 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
   @Override
   public void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada) {
 
-    while (true) {
+    while (!isStopCondition()) {
 
       if (!firstRun) {
         propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
@@ -39,10 +39,6 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
       }
 
       Workflow.await(() -> !this.isStopCondition());
-
-      if (isStopCondition()) {
-        return;
-      }
     }
   }
 
