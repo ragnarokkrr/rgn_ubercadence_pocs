@@ -45,11 +45,14 @@ public class WorkflowEventListeners implements ApplicationListener<DomainEventWr
   }
 
   private Object handlePropostaIniciada(PropostaIniciada propostaIniciada) {
+    log.info("LISTENER: {}", propostaIniciada);
     workflowExecution.iniciarProposta(propostaIniciada);
     return propostaIniciada;
   }
 
   private Object handlePropostaAnalisada(PropostaAnalisada propostaAnalisada) {
+    log.info("LISTENER: {}", propostaAnalisada);
+
     workflowExecution.concluirProposta(propostaAnalisada);
     return propostaAnalisada;
   }

@@ -12,5 +12,6 @@ public interface PropostaActivities {
   @ActivityMethod(scheduleToCloseTimeoutSeconds = 10 * 60)
   void receberRecomendacaoAnalise(RecomendacaoAnaliseCommand recomendacaoAnaliseCommand);
 
+  @ActivityMethod(scheduleToCloseTimeoutSeconds = 10 * 60)
   void concluirProposta(PropostaConcluida propostaConcluida);
 }

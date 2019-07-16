@@ -30,13 +30,13 @@ public class PropostaActivitiesImpl implements PropostaActivities {
 
   @Override
   public void receberRecomendacaoAnalise(RecomendacaoAnaliseCommand recomendacaoAnaliseCommand) {
-    log.info("RECEBENDO de Analise: {}", recomendacaoAnaliseCommand);
+    log.info("ACTIVITY - RECEBENDO de Analise: {}", recomendacaoAnaliseCommand);
     this.propostaService.anexarRecomendacaoAnalise(recomendacaoAnaliseCommand);
   }
 
   @Override
   public void concluirProposta(PropostaConcluida propostaConcluida) {
-    log.info("CONCLUINDO PROPOSTA: {}", propostaConcluida);
+    log.info("ACTIVITY - CONCLUINDO PROPOSTA: {}", propostaConcluida);
     // TODO implementar concluirProposta
   }
 }

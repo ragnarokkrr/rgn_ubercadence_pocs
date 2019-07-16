@@ -45,6 +45,8 @@ public class PropostaService {
   }
 
   public Proposta anexarRecomendacaoAnalise(RecomendacaoAnaliseCommand recomendacaoAnaliseCommand) {
+
+    log.info("ANEXANDO RECOMENDACAO: {} ", recomendacaoAnaliseCommand);
     Proposta proposta = propostaRepository.findById(recomendacaoAnaliseCommand.getPropostaId());
 
     proposta.anexarRecomendacaoAnalise(
@@ -64,7 +66,7 @@ public class PropostaService {
             .propostaWorkflowId(saved.workflowId())
             .occuredOn(LocalDateTime.now())
             .build());
-
+    log.info("Proposta Analisada: {}", saved);
     return saved;
   }
 

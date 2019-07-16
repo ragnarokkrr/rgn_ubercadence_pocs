@@ -10,20 +10,22 @@ import ragna.proposta.infrastructure.config.UberCadenceConstants;
 public interface PropostaWorkflow {
 
   @WorkflowMethod(
-    executionStartToCloseTimeoutSeconds = 100 * 60,
-    taskList = UberCadenceConstants.TASK_LIST
-  )
+      executionStartToCloseTimeoutSeconds = 100 * 60,
+      taskList = UberCadenceConstants.TASK_LIST)
   void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada);
 
   @SignalMethod
   void receberRecomendacaoAnalise(RecomendacaoAnalise recomendacaoAnalise);
 
-  @QueryMethod
-  RecomendacaoAnalise getRecomendacaoAnaliseEvent();
-
   @SignalMethod
   void concluirProposta(PropostaConcluida propostaConcluida);
 
   @QueryMethod
+  RecomendacaoAnalise getRecomendacaoAnaliseEvent();
+
+  @QueryMethod
   PropostaConcluida getPropostaConcluidaEvent();
+
+  @QueryMethod
+  PropostaIniciada getPropostaIniciada();
 }

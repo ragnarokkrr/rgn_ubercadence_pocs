@@ -18,7 +18,7 @@ public class RecomendacaoAnaliseCommand {
   private @NonNull UUID propostaId;
   private @NonNull UUID analiseId;
   private @NonNull String analista;
-  private @NonNull String recomendacao;
+  private String recomendacao;
   private @NonNull LocalDateTime dataRecomendacao;
   private @NonNull String status;
   private @NonNull PropostaWorkflowId propostaWorkflowId;

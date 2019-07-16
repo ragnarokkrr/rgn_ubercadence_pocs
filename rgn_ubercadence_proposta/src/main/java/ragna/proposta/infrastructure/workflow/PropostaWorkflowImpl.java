@@ -1,6 +1,5 @@
 package ragna.proposta.infrastructure.workflow;
 
-import com.uber.cadence.workflow.CompletablePromise;
 import com.uber.cadence.workflow.Workflow;
 import lombok.extern.slf4j.Slf4j;
 import ragna.common.workflow.PropostaWorkflowId;
@@ -14,40 +13,40 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
   private final PropostaActivities propostaActivities =
       Workflow.newActivityStub(PropostaActivities.class);
 
-  private CompletablePromise<RecomendacaoAnalise> recomendacaoAnalisePromise =
-      Workflow.newPromise();
-
-  private CompletablePromise<PropostaConcluida> propostaConcluidaPromise = Workflow.newPromise();
-
   private boolean exit = false;
   private boolean firstRun = false;
 
   private PropostaWorkflowId propostaWorkflowId;
+  private PropostaIniciada propostaIniciada;
+  private RecomendacaoAnalise recomendacaoAnalise;
+  private PropostaConcluida propostaConcluida;
 
   @Override
   public void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada) {
 
-    while (!isStopCondition()) {
+    while (true) {
+      Workflow.await(() -> !this.isStopCondition());
 
       if (!firstRun) {
         propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
 
         log.info("INICIANDO WORKFLOW: {} {}", propostaWorkflowId.encodedId(), propostaIniciada);
         this.propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
+        this.propostaIniciada = propostaIniciada;
         propostaActivities.enviarPropostaParaAnalise(propostaIniciada);
         firstRun = true;
       }
-
-      Workflow.await(() -> !this.isStopCondition());
     }
   }
 
   @Override
   public void receberRecomendacaoAnalise(RecomendacaoAnalise recomendacaoAnalise) {
+    this.recomendacaoAnalise = recomendacaoAnalise;
     log.info(
-        "RECEBENDO RECOMENDACAO ANALISE: {} {}",
+        "WORKFLOW RECEBENDO RECOMENDACAO ANALISE: {} {} {}",
         propostaWorkflowId.encodedId(),
-        recomendacaoAnalise);
+        recomendacaoAnalise,
+        propostaActivities);
     RecomendacaoAnaliseCommand recomendacaoAnaliseCommand =
         RecomendacaoAnaliseCommand.builder()
             .analiseId(recomendacaoAnalise.getId())
@@ -58,26 +57,38 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
             .status(recomendacaoAnalise.getStatus())
             .recomendacao(recomendacaoAnalise.getObservacao())
             .build();
+    log.info(
+        "WORKFLOW RECEBENDO RECOMENDACAO ANALISE 2: {} {}",
+        propostaWorkflowId.encodedId(),
+        recomendacaoAnalise);
     propostaActivities.receberRecomendacaoAnalise(recomendacaoAnaliseCommand);
-    this.recomendacaoAnalisePromise.complete(recomendacaoAnalise);
+    log.info(
+        "WORKFLOW RECEBENDO RECOMENDACAO ANALISE 3: {} {}",
+        propostaWorkflowId.encodedId(),
+        recomendacaoAnalise);
   }
 
   @Override
   public void concluirProposta(PropostaConcluida propostaConcluida) {
-    log.info("CONCLUINDO PROPOSTA: {} {}", propostaWorkflowId, propostaConcluida);
+    this.propostaConcluida = propostaConcluida;
+    log.info("WORKFLOW CONCLUINDO PROPOSTA: {} {}", propostaWorkflowId, propostaConcluida);
     propostaActivities.concluirProposta(propostaConcluida);
-    this.propostaConcluidaPromise.complete(propostaConcluida);
     this.exit = true;
   }
 
   @Override
   public RecomendacaoAnalise getRecomendacaoAnaliseEvent() {
-    return recomendacaoAnalisePromise.get();
+    return this.recomendacaoAnalise;
   }
 
   @Override
   public PropostaConcluida getPropostaConcluidaEvent() {
-    return propostaConcluidaPromise.get();
+    return this.propostaConcluida;
+  }
+
+  @Override
+  public PropostaIniciada getPropostaIniciada() {
+    return this.propostaIniciada;
   }
 
   private boolean isStopCondition() {
