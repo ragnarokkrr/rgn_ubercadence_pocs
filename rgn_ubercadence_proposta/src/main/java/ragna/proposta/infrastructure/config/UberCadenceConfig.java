@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import ragna.proposta.infrastructure.workflow.PropostaActivities;
 import ragna.proposta.infrastructure.workflow.PropostaWorkflowImpl;
 
 @Configuration
+@EnableCaching
 public class UberCadenceConfig {
 
   @Autowired private ApplicationContext context;

@@ -63,16 +63,16 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
   }
 
   @Override
-  public RecomendacaoAnalise getRecomendacaoAnaliseEvent() {
-    return recomendacaoAnalisePromise.get();
-  }
-
-  @Override
   public void concluirProposta(PropostaConcluida propostaConcluida) {
     log.info("CONCLUINDO PROPOSTA: {} {}", propostaWorkflowId, propostaConcluida);
     propostaActivities.concluirProposta(propostaConcluida);
     this.propostaConcluidaPromise.complete(propostaConcluida);
     this.exit = true;
+  }
+
+  @Override
+  public RecomendacaoAnalise getRecomendacaoAnaliseEvent() {
+    return recomendacaoAnalisePromise.get();
   }
 
   @Override

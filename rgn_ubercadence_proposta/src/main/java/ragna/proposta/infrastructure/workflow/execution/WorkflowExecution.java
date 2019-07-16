@@ -2,8 +2,11 @@ package ragna.proposta.infrastructure.workflow.execution;
 
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
+import com.uber.cadence.common.RetryOptions;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import ragna.proposta.domain.model.PropostaAnalisada;
 import ragna.proposta.domain.model.PropostaConcluida;
@@ -20,23 +23,32 @@ public class WorkflowExecution {
 
     log.info("Configurando Workflow: {}", propostaIniciada.getPropostaWorkflowId().encodedId());
     String propostaWfId = propostaIniciada.getPropostaWorkflowId().encodedId();
-    PropostaWorkflow workflow = newPropostaWorkflowStub(propostaWfId);
+    PropostaWorkflow workflow = getPropostaWorkflowStub(propostaWfId);
     WorkflowClient.start(workflow::iniciarPropostaWorkflow, propostaIniciada);
     log.info("Workflow Iniciado: {}", propostaWfId);
   }
 
   public void anexarRecomendacaoAnalise(RecomendacaoAnalise recomendacaoAnalise) {
-    log.info("Configurando Workflow: {}", recomendacaoAnalise.getPropostaWorkflowId());
+    log.info(
+        "ANEXAR RECOMENDACAO: Configurando Workflow: {}",
+        recomendacaoAnalise.getPropostaWorkflowId());
     String propostaWfId = recomendacaoAnalise.getPropostaWorkflowId().encodedId();
 
-    PropostaWorkflow propostaWorkflow = newPropostaWorkflowStub(propostaWfId);
+    PropostaWorkflow propostaWorkflow = getPropostaWorkflowStub(propostaWfId);
     propostaWorkflow.receberRecomendacaoAnalise(recomendacaoAnalise);
   }
 
+  @CacheEvict(
+    cacheNames = "getPropostaWorkflowStub",
+    key = "#propostaAnalisada.propostaWorkflowId.encodedId"
+  )
   public void concluirProposta(PropostaAnalisada propostaAnalisada) {
+    log.info(
+        "CONCLUIR PROPOSTA: Configurando Workflow: {}", propostaAnalisada.getPropostaWorkflowId());
+
     String propostaWfId = propostaAnalisada.getPropostaWorkflowId().encodedId();
 
-    PropostaWorkflow propostaWorkflow = newPropostaWorkflowStub(propostaWfId);
+    PropostaWorkflow propostaWorkflow = getPropostaWorkflowStub(propostaWfId);
     PropostaConcluida propostaConcluida =
         PropostaConcluida.builder()
             .cliente(propostaAnalisada.getCliente())
@@ -48,11 +60,19 @@ public class WorkflowExecution {
     propostaWorkflow.concluirProposta(propostaConcluida);
   }
 
-  private PropostaWorkflow newPropostaWorkflowStub(String propostaWfId) {
+  @Cacheable("getPropostaWorkflowStub")
+  PropostaWorkflow getPropostaWorkflowStub(String propostaWfId) {
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()
             .setTaskList(UberCadenceConstants.TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
+            .setExecutionStartToCloseTimeout(Duration.ofMinutes(30))
+            .setRetryOptions(
+                new RetryOptions.Builder()
+                    .setInitialInterval(Duration.ofMinutes(10))
+                    .setMaximumAttempts(1)
+                    .setExpiration(Duration.ofMinutes(30))
+                    .setDoNotRetry()
+                    .build())
             .setWorkflowId(propostaWfId)
             .build();
 
