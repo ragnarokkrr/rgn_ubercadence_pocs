@@ -50,6 +50,7 @@ public class WorkflowExecution {
             .id(propostaAnalisada.getId())
             .occuredOn(propostaAnalisada.occuredOn())
             .valor(propostaAnalisada.getValor())
+            .propostaWorkflowId(propostaAnalisada.getPropostaWorkflowId())
             .build();
 
     propostaWorkflow.concluirProposta(propostaConcluida);

@@ -55,11 +55,12 @@ docker run --network=host -e CADENCE_CLI_SHOW_STACKS=1  ubercadence/cli:master -
 
 ## Status
 
-*OBS* A documentação e os exemplos disponíveis são escaços. A melhor fonte de informações é o canal slack dos desenvolvedores do slack.
+POC Funcional, mas não contempla deploy e observability.
 
 ### TODO
 
-* Método do workflow fica bloqueado ao chamar `ragna.proposta.infrastructure.workflow.PropostaWorkflowImpl.receberRecomendacaoAnalise()` ao chamar atividade `propostaActivities.receberRecomendacaoAnalise(recomendacaoAnaliseCommand);`
+* Implementar error handling para encerrar Workflows com erros (`exit=true`)
+* Design de admnistração e controle do wokflow, inclusive `force` na saída (`@SignalMethod`)
 * Observability usando Prometheus
 * Deploy no ECS
 

@@ -14,7 +14,6 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
       Workflow.newActivityStub(PropostaActivities.class);
 
   private boolean exit = false;
-  private boolean firstRun = false;
 
   private PropostaWorkflowId propostaWorkflowId;
   private PropostaIniciada propostaIniciada;
@@ -24,19 +23,15 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
   @Override
   public void iniciarPropostaWorkflow(PropostaIniciada propostaIniciada) {
 
-    while (true) {
-      Workflow.await(() -> !this.isStopCondition());
+    propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
 
-      if (!firstRun) {
-        propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
+    log.info("INICIANDO WORKFLOW: {} {}", propostaWorkflowId.encodedId(), propostaIniciada);
+    this.propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
+    this.propostaIniciada = propostaIniciada;
 
-        log.info("INICIANDO WORKFLOW: {} {}", propostaWorkflowId.encodedId(), propostaIniciada);
-        this.propostaWorkflowId = propostaIniciada.getPropostaWorkflowId();
-        this.propostaIniciada = propostaIniciada;
-        propostaActivities.enviarPropostaParaAnalise(propostaIniciada);
-        firstRun = true;
-      }
-    }
+    propostaActivities.enviarPropostaParaAnalise(propostaIniciada);
+
+    Workflow.await(() -> this.isStopCondition());
   }
 
   @Override
@@ -73,7 +68,7 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
     this.propostaConcluida = propostaConcluida;
     log.info("WORKFLOW CONCLUINDO PROPOSTA: {} {}", propostaWorkflowId, propostaConcluida);
     propostaActivities.concluirProposta(propostaConcluida);
-    this.exit = true;
+    signalStopCondition();
   }
 
   @Override
@@ -92,6 +87,10 @@ public class PropostaWorkflowImpl implements PropostaWorkflow {
   }
 
   private boolean isStopCondition() {
-    return firstRun && exit;
+    return exit;
+  }
+
+  private void signalStopCondition() {
+    this.exit = true;
   }
 }
