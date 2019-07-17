@@ -57,10 +57,16 @@ docker run --network=host -e CADENCE_CLI_SHOW_STACKS=1  ubercadence/cli:master -
 
 POC Funcional, mas não contempla deploy e observability.
 
+Conseguimos o suporte do próprio arquiteto do Uber Cadence no Slack abaixo.
+
 ### TODO
 
 * Implementar error handling para encerrar Workflows com erros (`exit=true`)
 * Design de admnistração e controle do wokflow, inclusive `force` na saída (`@SignalMethod`)
+* Setup de timeouts
+* Timers Duráveis
+* Heart Beat
+* Usar versionamento de workflow usando a lib do Uber Cadence
 * Observability usando Prometheus
 * Deploy no ECS
 
